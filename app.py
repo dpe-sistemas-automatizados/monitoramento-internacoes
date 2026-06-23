@@ -80,12 +80,12 @@ with (aba2):
 
                 if cpf in st.session_state.nova_internacao: #Debuggar para novos salvamentos
                     n_internacao = st.selectbox("Deseja cadastrar dados de qual internação?", ["-"] +
-                                                linha["Numero Internacao"].values.tolist() + ["nova internação"],
+                                                linha["Numero Internacao"].tolist() + ["nova internação"],
                                                 index=len(linha["Numero Internacao"].values))
 
                 else:
                     n_internacao = st.selectbox("Deseja cadastrar dados de qual internação?",
-                                 ["-"] + linha["Numero Internacao"].values.tolist() + ["nova internação"])
+                                 ["-"] + linha["Numero Internacao"].tolist() + ["nova internação"])
 
                 if "nova" in n_internacao:
                     nova_internacao = True
@@ -159,11 +159,16 @@ if st.session_state.admin:
         )
         st.info("Espaço exclusivo para administradores do sistema 😎")
 
+        tipo_internacao = st.selectbox("Qual tipo de internação deseja gerar dados sobre?",
+                                       ["Provisória", "Compulsória"])
+
         if st.button("Produzir relatório"):
             with st.spinner("aguarde enquanto o relatório é produzido)"):
+
+                df_relatorio = df[df["Tipo Internacao"] == tipo_internacao].reset_index(drop=True)
                 estatistica = Estatistica()
 
-                relatorio = Relatorio(estatistica.gerar_estatisticas(df, pdr, storage, dados_usuarios))
+                relatorio = Relatorio(estatistica.gerar_estatisticas(df_relatorio, pdr, storage, dados_usuarios))
                 pdf = relatorio.gerar_relatorio()
 
                 st.success("PDF criado com sucesso! Clique abaixo para fazer download.")
