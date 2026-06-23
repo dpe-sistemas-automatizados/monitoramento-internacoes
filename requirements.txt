@@ -1,0 +1,7 @@
+streamlit
+pandas
+dropbox
+requests
+openpyxl
+Unidecode
+reportlab
