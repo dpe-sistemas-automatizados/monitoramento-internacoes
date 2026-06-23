@@ -96,6 +96,7 @@ with (aba2):
                 st.info("Paciente ainda não cadastrado. Favor inserir dados.")
                 st.warning("O CPF não poderá ser alterado depois. Verifique se está correto antes de continuar.")
                 n_internacao = "1"
+                nova_internacao = True
 
 
             if n_internacao != "-" and n_internacao:
