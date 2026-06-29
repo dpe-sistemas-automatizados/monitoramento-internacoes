@@ -74,18 +74,14 @@ with (aba2):
             nova_internacao = False
 
             if existence:
-                linha = df[df["CPF"] == cpf]
+                linha = df[df["CPF"] == cpf].copy()
                 st.write("")
                 st.success("Paciente localizado.")
 
-                if cpf in st.session_state.nova_internacao: #Debuggar para novos salvamentos
-                    n_internacao = st.selectbox("Deseja cadastrar dados de qual internação?", ["-"] +
+                n_internacao = st.selectbox("Deseja cadastrar dados de qual internação? (pegando a última por padrão)", ["-"] +
                                                 linha["Numero Internacao"].tolist() + ["nova internação"],
-                                                index=len(linha["Numero Internacao"].values))
-
-                else:
-                    n_internacao = st.selectbox("Deseja cadastrar dados de qual internação?",
-                                 ["-"] + linha["Numero Internacao"].tolist() + ["nova internação"])
+                                                index=len(linha["Numero Internacao"].values),
+                                                key = f"select_internacao_{cpf}_{len(linha)}")
 
                 if "nova" in n_internacao:
                     nova_internacao = True
