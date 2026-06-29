@@ -135,7 +135,10 @@ class Forms:
                         sucesso = False
                     if len(datas) > 1:
                         idx_data = len(datas) - 1
-                        if data and datas[idx_data-1] and data < datas[idx_data-1]:
+                        if datas[idx_data-1] is None:
+                            st.error("Favor preencher a data anterior antes de preencher esta.")
+                            sucesso = False
+                        elif data < datas[idx_data-1]:
                             st.error("Pela lógica do fluxo, esta data não pode ser menor que a do campo anterior. Favor ajustar.")
                             sucesso = False
 
