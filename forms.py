@@ -31,7 +31,7 @@ class Forms:
             else:
                 hospital_final = linha.at[0, "hospital final"]
         nova_linha = {}
-        datas = []
+        datas = {}
         nova_linha["Numero Internacao"] = n_internacao
 
         for col in cols:
@@ -126,23 +126,49 @@ class Forms:
                     sucesso = False
 
                 nova_linha[col] = data
-                datas.append(data)
+                datas[col] = data
 
-                #Checar data
-                if data is not None:
-                    if pd.to_datetime(data) > pd.to_datetime(storage.pegar_data(), dayfirst=True):
-                        st.error("A data selecionada está no futuro. Escolha outra.")
-                        sucesso = False
-                    if len(datas) > 1:
-                        idx_data = len(datas) - 1
-                        if datas[idx_data-1] is None:
-                            st.error("Favor preencher a data anterior antes de preencher esta.")
-                            sucesso = False
-                        elif data < datas[idx_data-1]:
-                            st.error("Pela lógica do fluxo, esta data não pode ser menor que a do campo anterior. Favor ajustar.")
-                            sucesso = False
+                #Checar datas
+                if data is None:
+                    nova_linha[col] = None
 
+                elif pd.to_datetime(data) > pd.to_datetime(storage.pegar_data(), dayfirst=True):
+                    st.error("A data selecionada está no futuro. Escolha outra.")
+                    sucesso = False
                     nova_linha[col] = data.strftime("%d/%m/%Y")
+
+                else:
+                    nova_linha[col] = data.strftime("%d/%m/%Y")
+
+                data_internacao = datas.get("data da internação")
+                data_alta = datas.get("data da alta médica")
+                data_cessacao = datas.get("data da decisão judicial  expressa da cessação da internação")
+                data_desosp = datas.get("data da desospitalização do paciente")
+
+                if any([data_desosp, data_cessacao, data_alta]) and not data_internacao:
+                    st.error("Preencha primeiro a data da internação. Favor corrigir.")
+                    sucesso = False
+
+                for x in [data_desosp, data_cessacao, data_alta]:
+                    if x and data_internacao and data_internacao > x:
+                        st.error("A data preenchida é anterior à data da internação. Favor corrigir.")
+                        sucesso = False
+
+                if data_desosp and not data_cessacao:
+                    st.error("Ainda não foi registrada data da decisão judicial por cessação. Favor preencher.")
+                    sucesso = False
+
+                if data_desosp and not data_alta:
+                    st.warning("Ainda não foi registrada data da alta. Se tiver tido, preencha.")
+
+                if data_alta and data_desosp and data_alta > data_desosp:
+                    st.error("A data da alta médica não pode ser posterior à data da desospitalização.")
+                    sucesso = False
+
+                if data_cessacao and data_desosp and data_cessacao > data_desosp:
+                    st.error("A decisão judicial de cessação não pode ser posterior à data da desospitalização.")
+                    sucesso = False
+
 
             elif col in self.simples:
                 if col == "qual municipio ou prestador foi autuado?":
