@@ -142,47 +142,48 @@ class Forms:
                 else:
                     nova_linha[col] = data.strftime("%d/%m/%Y")
 
-                data_internacao = datas.get("data da internação")
-                data_alta = datas.get("data da alta médica")
-                data_envio = datas.get("data de envio do caso para juiz articulador")
-                data_cessacao = datas.get("data da decisão judicial  expressa da cessação da internação")
-                data_desosp = datas.get("data da desospitalização do paciente")
+                if sucesso:
+                    data_internacao = datas.get("data da internação")
+                    data_alta = datas.get("data da alta médica")
+                    data_envio = datas.get("data de envio do caso para juiz articulador")
+                    data_cessacao = datas.get("data da decisão judicial  expressa da cessação da internação")
+                    data_desosp = datas.get("data da desospitalização do paciente")
 
-                if any([data_desosp, data_cessacao, data_alta, data_envio]) and not data_internacao:
-                    st.error("Preencha primeiro a data da internação. Favor corrigir.")
-                    sucesso = False
-
-                for x in [data_desosp, data_cessacao, data_alta, data_envio]:
-                    if x and data_internacao and data_internacao > x:
-                        st.error("A data preenchida é anterior à data da internação. Favor corrigir.")
+                    if any([data_desosp, data_cessacao, data_alta, data_envio]) and not data_internacao:
+                        st.error("Preencha primeiro a data da internação. Favor corrigir.")
                         sucesso = False
 
-                if data_envio and data_cessacao and data_envio > data_cessacao:
-                    st.error("A data da decisão judicial por cessação deve ser igual ou posterior à data de envio do caso ao juiz")
-                    sucesso = False
+                    for x in [data_desosp, data_cessacao, data_alta, data_envio]:
+                        if x and data_internacao and data_internacao > x:
+                            st.error("A data preenchida é anterior à data da internação. Favor corrigir.")
+                            sucesso = False
 
-                if data_desosp:
-                    if not data_cessacao:
-                        st.error("Ainda não foi registrada data da decisão judicial por cessação. Favor preencher.")
+                    if data_envio and data_cessacao and data_envio > data_cessacao:
+                        st.error("A data da decisão judicial por cessação deve ser igual ou posterior à data de envio do caso ao juiz")
                         sucesso = False
 
-                    if not data_alta:
-                        st.warning("Ainda não foi registrada data da alta. Se tiver tido, preencha.")
+                    if data_desosp:
+                        if not data_cessacao:
+                            st.error("Ainda não foi registrada data da decisão judicial por cessação. Favor preencher.")
+                            sucesso = False
 
-                    if not data_envio:
-                        st.warning("Ainda não foi registrada data do envio do caso ao juiz articulador. Se tiver ocorrido, preencha.")
+                        if not data_alta:
+                            st.warning("Ainda não foi registrada data da alta. Se tiver tido, preencha.")
 
-                    if data_alta and data_alta > data_desosp:
-                        st.error("A data da desospitalização não pode ser anterior à data da alta.")
-                        sucesso = False
+                        if not data_envio:
+                            st.warning("Ainda não foi registrada data do envio do caso ao juiz articulador. Se tiver ocorrido, preencha.")
 
-                    if data_cessacao and data_cessacao > data_desosp:
-                        st.error("A data da desospitalização não pode ser anterior à data da cessação.")
-                        sucesso = False
+                        if data_alta and data_alta > data_desosp:
+                            st.error("A data da desospitalização não pode ser anterior à data da alta.")
+                            sucesso = False
 
-                    if data_envio and data_envio > data_desosp:
-                        st.error("A data da desospitalização não pode ser anterior à data do envio do caso ao juiz articulador")
-                        sucesso = False
+                        if data_cessacao and data_cessacao > data_desosp:
+                            st.error("A data da desospitalização não pode ser anterior à data da cessação.")
+                            sucesso = False
+
+                        if data_envio and data_envio > data_desosp:
+                            st.error("A data da desospitalização não pode ser anterior à data do envio do caso ao juiz articulador")
+                            sucesso = False
 
             elif col in self.simples:
                 if col == "qual municipio ou prestador foi autuado?":
