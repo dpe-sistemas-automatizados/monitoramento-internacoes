@@ -147,7 +147,6 @@ class Forms:
                 data_envio = datas.get("data de envio do caso para juiz articulador")
                 data_cessacao = datas.get("data da decisão judicial  expressa da cessação da internação")
                 data_desosp = datas.get("data da desospitalização do paciente")
-                data_raps = datas.get("Data do encaminhamento para RAPS")
 
                 if any([data_desosp, data_cessacao, data_alta, data_envio]) and not data_internacao:
                     st.error("Preencha primeiro a data da internação. Favor corrigir.")
