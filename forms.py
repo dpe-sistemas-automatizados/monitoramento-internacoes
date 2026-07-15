@@ -21,6 +21,7 @@ class Forms:
 
     def gerar_cols(self, cpf, df, existence, storage, n_internacao):
         sucesso = True
+        aviso = False
         cols = [x for x in df.columns if x not in preenchimento_automatico]
         hospital_final = None
         if existence:
@@ -167,12 +168,6 @@ class Forms:
                             st.error("Ainda não foi registrada data da decisão judicial por cessação. Favor preencher.")
                             sucesso = False
 
-                        if not data_alta:
-                            st.warning("Ainda não foi registrada data da alta. Se tiver tido, preencha.")
-
-                        if not data_envio:
-                            st.warning("Ainda não foi registrada data do envio do caso ao juiz articulador. Se tiver ocorrido, preencha.")
-
                         if data_alta and data_alta > data_desosp:
                             st.error("A data da desospitalização não pode ser anterior à data da alta.")
                             sucesso = False
@@ -184,6 +179,16 @@ class Forms:
                         if data_envio and data_envio > data_desosp:
                             st.error("A data da desospitalização não pode ser anterior à data do envio do caso ao juiz articulador")
                             sucesso = False
+
+                        if not aviso:
+                            if not data_alta:
+                                st.warning("Ainda não foi registrada data da alta. Se tiver tido, preencha.")
+                                aviso = True
+                                
+                            if not data_envio:
+                                st.warning(
+                                    "Ainda não foi registrada data do envio do caso ao juiz articulador. Se tiver ocorrido, preencha.")
+                                aviso = True
 
             elif col in self.simples:
                 if col == "qual municipio ou prestador foi autuado?":
