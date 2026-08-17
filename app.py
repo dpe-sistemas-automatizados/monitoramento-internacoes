@@ -65,7 +65,8 @@ with (aba2):
         "<h2 style='text-align: center;'>Cadastrar/Editar Paciente</h2>",
         unsafe_allow_html=True)
 
-    st.info("Digite o CPF do paciente em qualquer formatação. Por privacidade, somente os 6 dígitos centrais (\*\*\*.456.789-\*\*) serão armazenados.")
+    st.info("Para cadastrar ou editar um paciente, digite seu CPF em qualquer formatação. Por privacidade, somente os 6 dígitos centrais "
+            "(\*\*\*.456.789-\*\*) serão armazenados")
 
     if "cpf" not in st.session_state:
         st.session_state.cpf = ""
