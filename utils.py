@@ -25,13 +25,19 @@ class Utils:
 
         return df.drop(cols_esconder, axis=1)
 
-    def validar_cpf(self, cpf):
-        return bool(re.fullmatch(r"\d{3}\.\d{3}\.\d{3}-\d{2}", cpf))
+    def capturar_cpf(self, cpf):
+        cpf = re.sub(r"\D", "", cpf)
+        if len(cpf) == 6:
+            cpf = f"***.{cpf[:3]}.{cpf[3:]}-**"
+        elif len(cpf) == 11:
+            cpf = f"***.{cpf[3:6]}.{cpf[6:9]}-**"
+        else:
+            cpf = None
+        return cpf
 
     def verificar_existencia_cpf(self, df, cpf):
-        values = df["CPF"].values.tolist()
-        if cpf in values:
-            return True, values.index(cpf)
+        if cpf in df["CPF"].values:
+            return True, df.loc[df["CPF"]==cpf].copy()
         else:
             return False, None
 
@@ -72,11 +78,12 @@ class Utils:
             referenciados.extend([y.strip() for y in municipio.split(",")])
         return origem in referenciados
 
-    def completar_paciente(self, paciente, cpf, hospital_fim, grade, df):
+    def completar_paciente(self, paciente, cpf, hospital_fim, grade, df, nome):
         paciente["CPF"] = cpf
         paciente["Data"] = self.storage.pegar_data()
         paciente["Usuário"] = st.session_state.usuario
         paciente["RAPS conforme grade de referência?"] = self.raps_grade(paciente, grade)
+        paciente["Nome do paciente"] = nome
 
         if hospital_fim:
             paciente["hospital final"] = [x.strip() for x in paciente["hospitais encaminhados"].split(",")][-1]
@@ -107,11 +114,3 @@ class Utils:
             df.to_excel(writer, index=False)
         output.seek(0)
         return output.getvalue()
-
-    def capturar_cpf(self, cpf):
-        cpf = re.sub(r"\D", "", cpf)
-        if len(cpf) == 11:
-            cpf = f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}"
-        else:
-            cpf = None
-        return cpf
