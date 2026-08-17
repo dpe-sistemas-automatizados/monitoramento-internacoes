@@ -5,7 +5,7 @@ from unidecode import unidecode
 cols_censurar = ["CPF"]
 cols_esconder = ["Usuário"]
 preenchimento_automatico = ["Usuário", "Data", "CPF", "encaminhamento conforme grade de referência?", "hospital final",
-                            "hospital final é psiquiátrico?", "RAPS conforme grade de referência?"]
+                            "hospital final é psiquiátrico?", "RAPS conforme grade de referência?", "Nome do paciente"]
 
 hospitais_psi = ["MARIA MODESTO CRAVO (UBERABA)", "SANATORIO ESPIRITA JOSE DIAS MACHADO (ITUITABA)",
                  "INSTITUTO RAUL SOARES (BELO HORIZONTE)", "HOSPITAL GEDOR SILVEIRA (SAO SEBASTIAO DO PARAISO)"]
