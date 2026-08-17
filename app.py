@@ -112,7 +112,7 @@ with (aba2):
                     nome = nome[0] + " " + nome[-1]
                     n_internacao = "1"
                     st.warning("Gerando campos para preencher nova internação")
-                else:
+                elif nome:
                     st.error("Favor digitar apenas o primeiro e o último nome do paciente")
 
         else:
@@ -125,7 +125,7 @@ with (aba2):
                 st.warning(
                     "O CPF e o nome não poderão ser alterados depois. Verifique se estão corretos antes de continuar.")
                 nova_internacao = True
-            else:
+            elif nome:
                 st.error("Favor digitar apenas o primeiro e o último nome do paciente")
 
 
@@ -148,7 +148,8 @@ with (aba2):
                     time.sleep(0.5)
                     st.rerun()
 
-    else: #CPF inválido
+
+    elif st.session_state.cpf.strip():
         st.error("CPF inválido. Tente novamente.")
 
 if not st.session_state.admin:
