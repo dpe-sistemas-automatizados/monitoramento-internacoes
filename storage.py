@@ -49,8 +49,8 @@ class Storage:
     def pegar_data(_self):
         return datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y")
 
-    def salvar_df(self, paciente, cpf, utils, hospital_fim, grade, df, tentativas=5):
-        paciente = utils.completar_paciente(paciente, cpf, hospital_fim, grade, df)
+    def salvar_df(self, paciente, cpf, utils, hospital_fim, grade, df, nome, tentativas=5):
+        paciente = utils.completar_paciente(paciente, cpf, hospital_fim, grade, df, nome)
         cpf_paciente = paciente["CPF"]
         n_internacao = paciente["Numero Internacao"]
         paciente = pd.DataFrame([paciente])
@@ -59,8 +59,9 @@ class Storage:
             try:
                 df, rev = self.carregar_df_com_rev(ARQUIVO_DF)
 
-                if cpf_paciente in df["CPF"].values and n_internacao in df["Numero Internacao"].values:
-                    indice = df[(df["CPF"] == cpf_paciente) & (df["Numero Internacao"] == n_internacao)].index[0]
+                df_filtrada = df[(df["CPF"] == cpf_paciente) & (df["Numero Internacao"] == n_internacao) & (df["Nome do paciente"]==nome)]
+                if not df_filtrada.empty:
+                    indice = df_filtrada.index[0]
 
                     for col, valor in paciente.iloc[0].items():
                         df.at[indice, col] = valor
