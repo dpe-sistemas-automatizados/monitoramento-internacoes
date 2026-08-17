@@ -16,7 +16,7 @@ class Auth:
         self.email = EMAIL
         self.email_senha = EMAIL_SENHA
         self.utils = utils
-        self.link = "https://monitoramento-pacientes-custodia.streamlit.app/"
+        self.link = "https://monitoramento-internacoes-mg.streamlit.app/"
 
     def atualizar_login(self, usuario, hoje, tentativas=5):
         for tentativa in range(tentativas):
