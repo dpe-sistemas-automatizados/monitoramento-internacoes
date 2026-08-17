@@ -92,7 +92,7 @@ with (aba2):
             st.success("Um ou mais pacientes foram encontrados para os 6 dígitos centrais do CPF. Selecione o nome ou cadastre um novo.")
 
             nomes = trecho["Nome do paciente"].dropna().drop_duplicates().tolist()
-            nome = st.selectbox("Qual o primeiro nome do paciente?", ["-", *nomes, "novo paciente"])
+            nome = st.selectbox("Qual o nome do paciente?", ["-", *nomes, "novo paciente"])
 
             if nome in nomes:
                 trecho = trecho[trecho["Nome do paciente"] == nome]
