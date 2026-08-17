@@ -9,7 +9,7 @@ class Forms:
         self.data = ["Data", "data da internação", "data da alta médica", "data de envio do caso para juiz articulador",
              "data da decisão judicial  expressa da cessação da internação", "data da desospitalização do paciente",
              "Data do encaminhamento para RAPS"]
-        self.simples = ["Nome do paciente", "qual municipio ou prestador foi autuado?"]
+        self.simples = ["qual municipio ou prestador foi autuado?"]
         self.expand = ["Observações (sinalizar fatores como dificuldades de infraestrutura, de negativa de hospitais etc.)"]
         self.box = box
         self.especial = ["hospitais encaminhados"]
@@ -19,18 +19,22 @@ class Forms:
         self.opcoes_box = ["", "sim", "não"]
         self.hospitais = self.box["hospitais encaminhados"] + hospitais_psi
 
-    def gerar_cols(self, cpf, df, existence, storage, n_internacao):
+    def gerar_cols(self, cpf, df, storage, n_internacao, nome):
+        #Configurar variáveis-padrão
         sucesso = True
         aviso = False
         cols = [x for x in df.columns if x not in preenchimento_automatico]
         hospital_final = None
+
+        linha = df[(df["CPF"] == cpf) & (df["Numero Internacao"]==n_internacao) & (df["Nome do paciente"]==nome)]
+
+        existence = not linha.empty
+
         if existence:
-            linha = df[(df["CPF"] == cpf) & (df["Numero Internacao"]==n_internacao)].reset_index(drop=True)
-            if linha.empty:
-                linha = df[(df["CPF"] == cpf) & (df["Numero Internacao"] == str(int(n_internacao) - 1))].reset_index(
-                    drop=True)[["CPF", "Nome do paciente", "município de origem"]]
-            else:
-                hospital_final = linha.at[0, "hospital final"]
+            hospital_final = linha.iloc[0].get("hospital final")
+        else:
+            hospital_final = None
+
         nova_linha = {}
         datas = {}
         nova_linha["Numero Internacao"] = n_internacao
@@ -220,5 +224,5 @@ class Forms:
                     sucesso = False
 
 
-        hospital_fim = aceito == "sim"
+        hospital_fim = aceito == "sim" and bool(nova_linha.get("hospitais encaminhados")
         return nova_linha, hospital_fim, sucesso
