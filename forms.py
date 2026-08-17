@@ -224,5 +224,5 @@ class Forms:
                     sucesso = False
 
 
-        hospital_fim = aceito == "sim" and bool(nova_linha.get("hospitais encaminhados")
+        hospital_fim = aceito == "sim" and bool(nova_linha.get("hospitais encaminhados"))
         return nova_linha, hospital_fim, sucesso
