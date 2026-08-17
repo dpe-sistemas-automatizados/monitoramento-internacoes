@@ -64,57 +64,92 @@ with (aba2):
     st.markdown(
         "<h2 style='text-align: center;'>Cadastrar/Editar Paciente</h2>",
         unsafe_allow_html=True)
-    st.info("Preencha o CPF do paciente (qualquer formatação) e aperte enter. Se houver informações cadastradas, elas serão recuperadas")
-    cpf = st.text_input("CPF").strip()
-    if cpf:
-        cpf = utils.capturar_cpf(cpf)
 
+    st.info("Digite os 6 dígitos centrais do CPF do paciente (***.456.789-**). Se houver registros no banco de dados, eles serão recuperados.")
+
+    if "cpf" not in st.session_state:
+        st.session_state.cpf = ""
+
+    def mascarar_cpf():
+        cpf = utils.capturar_cpf(st.session_state.cpf)
         if cpf:
-            existence, idx = utils.verificar_existencia_cpf(df, cpf)
-            nova_internacao = False
+            st.session_state.cpf = cpf
 
-            if existence:
-                linha = df[df["CPF"] == cpf].copy()
-                st.write("")
-                st.success("Paciente localizado.")
+    st.text_input("CPF", key="cpf", on_change=mascarar_cpf)
+    cpf = utils.capturar_cpf(st.session_state.cpf)
 
-                n_internacao = st.selectbox("Deseja cadastrar dados de qual internação? (pegando a última por padrão)", ["-"] +
-                                                linha["Numero Internacao"].tolist() + ["nova internação"],
-                                                index=len(linha["Numero Internacao"].values),
-                                                key = f"select_internacao_{cpf}_{len(linha)}")
+    if cpf:
+
+        nova_internacao = False
+        n_internacao = None
+        nome = None
+
+        existencia_cpf, trecho = utils.verificar_existencia_cpf(df, cpf)
+
+        if existencia_cpf:
+            st.write("")
+            st.success("Um ou mais pacientes foram encontrados para os 6 dígitos centrais do CPF. Selecione o nome ou cadastre um novo.")
+
+            nomes = trecho["Nome do paciente"].dropna().drop_duplicates().tolist()
+            nome = st.selectbox("Qual o primeiro nome do paciente?", ["-", *nomes, "novo paciente"])
+
+            if nome in nomes:
+                trecho = trecho[trecho["Nome do paciente"] == nome]
+                n_internacao = st.selectbox("Deseja cadastrar dados de qual internação? (pegando a última por padrão)",
+                                            ["-", *trecho["Numero Internacao"].tolist(), "nova internação"],
+                                            index=len(trecho["Numero Internacao"].values),
+                                            key=f"select_internacao_{cpf}_{nome}_{len(trecho)}")
 
                 if "nova" in n_internacao:
                     nova_internacao = True
-                    n_internacao = str(max([int(i) for i in linha["Numero Internacao"]]) + 1)
+                    n_internacao = str(max([int(i) for i in trecho["Numero Internacao"]]) + 1)
                     st.warning("Gerando campos para preencher nova internação")
 
-            else:
-                st.info("Paciente ainda não cadastrado. Favor inserir dados.")
-                st.warning("O CPF não poderá ser alterado depois. Verifique se está correto antes de continuar.")
-                n_internacao = "1"
+            elif nome == "novo paciente":
                 nova_internacao = True
-
-
-            if n_internacao != "-" and n_internacao:
-                paciente, hospital_fim, sucesso = forms.gerar_cols(cpf, df, existence, storage, n_internacao)
-                if not sucesso:
-                    st.error("Um dos campos preenchidos se encontra com erro. Corrija para poder prosseguir.")
-
+                nome = st.text_input("Qual o primeiro e último nome do paciente?").strip().replace(".", "").split()
+                if nome and len(nome) == 2:
+                    nome = nome[0] + " " + nome[-1]
+                    n_internacao = "1"
+                    st.warning("Gerando campos para preencher nova internação")
                 else:
-                    if st.button("salvar e anexar na planilha as informações"):
-                        with st.spinner("Aguarde, salvando..."):
-                            while not storage.salvar_df(paciente, cpf, utils, hospital_fim, grade, df):
-                                st.error("Outro usuário está salvando dados no momento. Tentando novamente em instantes...")
-                                time.sleep(5)
-                        st.success("Salvo com sucesso! Atualizando planilha...")
+                    st.error("Favor digitar apenas o primeiro e o último nome do paciente")
 
-                        if nova_internacao and cpf not in st.session_state.nova_internacao:
-                            st.session_state.nova_internacao.append(cpf)
-
-                        time.sleep(0.5)
-                        st.rerun()
         else:
-            st.error("CPF inválido. Tente novamente.")
+            st.info("Paciente ainda não cadastrado. Favor inserir dados.")
+            nome = st.text_input("Qual o primeiro e último nome do paciente?").strip().replace(".", "").split()
+            if nome and len(nome) == 2:
+                nome = nome[0] + " " + nome[-1]
+                n_internacao = "1"
+                st.warning("Gerando campos para preencher nova internação")
+                st.warning(
+                    "O CPF e o nome não poderão ser alterados depois. Verifique se estão corretos antes de continuar.")
+                nova_internacao = True
+            else:
+                st.error("Favor digitar apenas o primeiro e o último nome do paciente")
+
+
+        if n_internacao and n_internacao != "-":
+            paciente, hospital_fim, sucesso = forms.gerar_cols(cpf, df, storage, n_internacao, nome)
+            if not sucesso:
+                st.error("Um dos campos preenchidos se encontra com erro. Corrija para poder prosseguir.")
+
+            else:
+                if st.button("salvar e anexar na planilha as informações"):
+                    with st.spinner("Aguarde, salvando..."):
+                        while not storage.salvar_df(paciente, cpf, utils, hospital_fim, grade, df, nome):
+                            st.error("Outro usuário está salvando dados no momento. Tentando novamente em instantes...")
+                            time.sleep(5)
+                    st.success("Salvo com sucesso! Atualizando planilha...")
+
+                    if nova_internacao and cpf not in st.session_state.nova_internacao:
+                        st.session_state.nova_internacao.append(cpf)
+
+                    time.sleep(0.5)
+                    st.rerun()
+
+    else: #CPF inválido
+        st.error("CPF inválido. Tente novamente.")
 
 if not st.session_state.admin:
     with aba3:
