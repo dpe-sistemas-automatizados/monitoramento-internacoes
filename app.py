@@ -92,7 +92,7 @@ with (aba2):
             st.success("Um ou mais pacientes foram encontrados para os 6 dígitos centrais do CPF. Selecione o nome ou cadastre um novo.")
 
             nomes = trecho["Nome do paciente"].dropna().drop_duplicates().tolist()
-            nome = st.selectbox("Qual o nome do paciente?", ["-", *nomes, "novo paciente"])
+            nome = st.selectbox("Qual o nome do paciente?", ["-", *nomes, "=== novo paciente ==="])
 
             if nome in nomes:
                 trecho = trecho[trecho["Nome do paciente"] == nome]
@@ -100,16 +100,16 @@ with (aba2):
 
                 n_internacao = st.selectbox(
                     "Deseja cadastrar dados de qual internação? (pegando a última por padrão)",
-                    ["-", *internacoes, "nova internação"],
+                    ["-", *internacoes, "=== nova internação ==="],
                     index=len(internacoes),
                     key=f"select_internacao_{cpf}_{nome}_{len(trecho)}")
 
-                if "nova" in n_internacao:
+                if "nova internação" in n_internacao:
                     nova_internacao = True
                     n_internacao = str(max([int(i) for i in trecho["Numero Internacao"]]) + 1)
                     st.warning("Gerando campos para preencher nova internação")
 
-            elif nome == "novo paciente":
+            elif "novo paciente" in nome:
                 nova_internacao = True
                 nome = st.text_input("Qual o primeiro e último nome do paciente?").strip().replace(".", "").split()
                 if nome and len(nome) == 2:
