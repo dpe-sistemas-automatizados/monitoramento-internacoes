@@ -114,3 +114,19 @@ class Utils:
             df.to_excel(writer, index=False)
         output.seek(0)
         return output.getvalue()
+
+    def formatar_nome(self):
+        nome = st.session_state.nome_paciente.strip().replace(".", "").split()
+
+        if len(nome) > 1:
+            st.session_state.nome_paciente = f"{nome[0]} {nome[-1]}"
+
+    def mascarar_cpf(self):
+        cpf = self.capturar_cpf(st.session_state.cpf)
+
+        if cpf:
+            if cpf != st.session_state.cpf_anterior:
+                st.session_state.nome_paciente = ""
+
+            st.session_state.cpf = cpf
+            st.session_state.cpf_anterior = cpf
