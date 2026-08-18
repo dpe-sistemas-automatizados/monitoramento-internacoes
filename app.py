@@ -65,22 +65,23 @@ with (aba2):
         "<h2 style='text-align: center;'>Cadastrar/Editar Paciente</h2>",
         unsafe_allow_html=True)
 
-    st.info("Para cadastrar ou editar um paciente, digite seu CPF em qualquer formatação. Por privacidade, somente os 6 dígitos centrais "
-            "(\*\*\*.456.789-\*\*) serão armazenados")
+    st.info("""Para cadastrar ou consultar um paciente, digite os 6 dígitos centrais do CPF dele.
+Exemplo: para 123.456.789-00, digite apenas 456789""")
 
+    #Inicializar algumas variáveis
     if "cpf" not in st.session_state:
         st.session_state.cpf = ""
+    if "cpf_anterior" not in st.session_state:
+        st.session_state.cpf_anterior = ""
+    if "nome_paciente" not in st.session_state:
+        st.session_state.nome_paciente = ""
 
-    def mascarar_cpf():
-        cpf = utils.capturar_cpf(st.session_state.cpf)
-        if cpf:
-            st.session_state.cpf = cpf
-
-    st.text_input("CPF", key="cpf", on_change=mascarar_cpf)
+    st.text_input("CPF", key="cpf", on_change=utils.mascarar_cpf)
     cpf = utils.capturar_cpf(st.session_state.cpf)
 
     if cpf:
 
+        #Criar variáveis
         nova_internacao = False
         n_internacao = None
         nome = None
@@ -111,26 +112,27 @@ with (aba2):
 
             elif "novo paciente" in nome:
                 nova_internacao = True
-                nome = st.text_input("Qual o primeiro e último nome do paciente?").strip().replace(".", "").split()
-                if nome and len(nome) == 2:
-                    nome = nome[0] + " " + nome[-1]
+                st.text_input("Qual o primeiro e último nome do paciente?", key="nome_paciente", on_change=utils.formatar_nome)
+                nome = st.session_state.nome_paciente.strip()
+
+                if nome and len(nome.split()) > 1:
                     n_internacao = "1"
                     st.warning("Gerando campos para preencher nova internação")
                 elif nome:
-                    st.error("Favor digitar apenas o primeiro e o último nome do paciente")
+                    st.error("Favor digitar também o último sobrenome do paciente")
 
         else:
             st.info("Paciente ainda não cadastrado. Favor inserir dados.")
-            nome = st.text_input("Qual o primeiro e último nome do paciente?").strip().replace(".", "").split()
-            if nome and len(nome) == 2:
-                nome = nome[0] + " " + nome[-1]
+            st.text_input("Qual o primeiro e último nome do paciente?", key="nome_paciente", on_change=utils.formatar_nome)
+            nome = st.session_state.nome_paciente.strip()
+
+            if nome and len(nome.split()) > 1:
                 n_internacao = "1"
                 st.warning("Gerando campos para preencher nova internação")
-                st.warning(
-                    "O CPF e o nome não poderão ser alterados depois. Verifique se estão corretos antes de continuar.")
+                st.warning("O CPF e o nome não poderão ser alterados depois. Verifique se estão corretos antes de continuar.")
                 nova_internacao = True
             elif nome:
-                st.error("Favor digitar apenas o primeiro e o último nome do paciente")
+                st.error("Favor digitar também o último sobrenome do paciente")
 
 
         if n_internacao and n_internacao != "-":
