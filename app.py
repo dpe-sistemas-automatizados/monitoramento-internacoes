@@ -96,10 +96,13 @@ with (aba2):
 
             if nome in nomes:
                 trecho = trecho[trecho["Nome do paciente"] == nome]
-                n_internacao = st.selectbox("Deseja cadastrar dados de qual internação? (pegando a última por padrão)",
-                                            ["-", *trecho["Numero Internacao"].tolist(), "nova internação"],
-                                            index=len(trecho["Numero Internacao"].values),
-                                            key=f"select_internacao_{cpf}_{nome}_{len(trecho)}")
+                internacoes = sorted(trecho["Numero Internacao"].tolist(), key=int)
+
+                n_internacao = st.selectbox(
+                    "Deseja cadastrar dados de qual internação? (pegando a última por padrão)",
+                    ["-", *internacoes, "nova internação"],
+                    index=len(internacoes),
+                    key=f"select_internacao_{cpf}_{nome}_{len(trecho)}")
 
                 if "nova" in n_internacao:
                     nova_internacao = True
